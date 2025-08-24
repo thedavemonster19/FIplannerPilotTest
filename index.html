@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Independence Planner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            text-align: center;
+        }
+
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #1f2937;
+        }
+
+        .input-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="number"] {
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .calculate-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            min-width: 250px;
+        }
+
+        .calculate-btn:hover {
+            background: #2563eb;
+        }
+
+        .results-section {
+            margin-top: 3rem;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .chart-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .table-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+
+        .data-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .data-table td {
+            color: #6b7280;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fi-indicator {
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .warning-indicator {
+            background: #f59e0b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Financial Independence Planner</div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <h1 class="section-title">Plan Your Path to Financial Independence</h1>
+
+            <div class="input-section">
+                <div class="input-grid">
+                    <div class="input-field">
+                        <label>Starting Capital ($)</label>
+                        <input type="number" id="startingCapital" value="50000">
+                    </div>
+                    <div class="input-field">
+                        <label>Current Age</label>
+                        <input type="number" id="currentAge" value="25">
+                    </div>
+                    <div class="input-field">
+                        <label>Life Expectancy</label>
+                        <input type="number" id="lifeExpectancy" value="85">
+                    </div>
+                    <div class="input-field">
+                        <label>Active Until Age</label>
+                        <input type="number" id="activeAge" value="65">
+                    </div>
+                    <div class="input-field">
+                        <label>Annual Spending ($)</label>
+                        <input type="number" id="annualSpending" value="60000">
+                    </div>
+                    <div class="input-field">
+                        <label>Retirement Spending ($)</label>
+                        <input type="number" id="retirementSpending" value="45000">
+                    </div>
+                    <div class="input-field">
+                        <label>Rate of Return (%)</label>
+                        <input type="number" id="rateOfReturn" value="7" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label>Annual Contributions ($)</label>
+                        <input type="number" id="annualContributions" value="12000">
+                    </div>
+                    <div class="input-field">
+                        <label>Inflation Rate (%)</label>
+                        <input type="number" id="inflationRate" value="3" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label>Withdrawal Rate (%)</label>
+                        <input type="number" id="withdrawalRate" value="4" step="0.1">
+                    </div>
+                </div>
+                <button class="calculate-btn" onclick="calculateFI()">
+                    Calculate My Financial Independence Plan
+                </button>
+            </div>
+
+            <section class="results-section hidden" id="resultsSection">
+                <h2 class="section-title">Your Financial Independence Plan</h2>
+                
+                <div class="summary-cards" id="summaryCards">
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">Portfolio Value Over Time</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3 class="chart-title">Year-by-Year Breakdown</h3>
+                    <table class="data-table" id="detailTable">
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        var chart = null;
+
+        function calculateFI() {
+            var startingCapital = parseFloat(document.getElementById('startingCapital').value) || 0;
+            var currentAge = parseInt(document.getElementById('currentAge').value) || 0;
+            var lifeExpectancy = parseInt(document.getElementById('lifeExpectancy').value) || 0;
+            var activeAge = parseInt(document.getElementById('activeAge').value) || 0;
+            var annualSpending = parseFloat(document.getElementById('annualSpending').value) || 0;
+            var retirementSpending = parseFloat(document.getElementById('retirementSpending').value) || 0;
+            var rateOfReturn = parseFloat(document.getElementById('rateOfReturn').value) || 0;
+            var annualContributions = parseFloat(document.getElementById('annualContributions').value) || 0;
+            var inflationRate = parseFloat(document.getElementById('inflationRate').value) || 0;
+            var withdrawalRate = parseFloat(document.getElementById('withdrawalRate').value) || 0;
+
+            if (startingCapital <= 0 || currentAge <= 0) {
+                alert('Please enter valid values for starting capital and current age.');
+                return;
+            }
+
+            var yearlyData = [];
+            var portfolio = startingCapital;
+            var fiAchieved = false;
+            var fiYear = null;
+            var portfolioEmpty = false;
+
+            for (var year = 0; year <= (lifeExpectancy - currentAge); year++) {
+                var age = currentAge + year;
+                var inflationAdjustment = Math.pow(1 + inflationRate / 100, year);
+                var isActive = age <= activeAge;
+                var baseSpending = isActive ? annualSpending : retirementSpending;
+                var adjustedSpending = baseSpending * inflationAdjustment;
+                var withdrawalCapacity = portfolio * (withdrawalRate / 100);
+
+                if (!fiAchieved && withdrawalCapacity >= adjustedSpending) {
+                    fiAchieved = true;
+                    fiYear = age;
+                }
+
+                var contributions = 0;
+                if (isActive && !fiAchieved) {
+                    contributions = annualContributions;
+                }
+
+                var investmentGrowth = portfolio * (rateOfReturn / 100);
+
+                if (fiAchieved) {
+                    portfolio = portfolio + investmentGrowth - adjustedSpending;
+                } else {
+                    portfolio = portfolio + investmentGrowth + contributions - Math.min(adjustedSpending, withdrawalCapacity);
+                }
+
+                if (portfolio < 0) {
+                    portfolio = 0;
+                    portfolioEmpty = true;
+                }
+
+                yearlyData.push({
+                    age: age,
+                    portfolio: portfolio,
+                    spending: adjustedSpending,
+                    contributions: contributions,
+                    withdrawalCapacity: withdrawalCapacity,
+                    fiAchieved: fiAchieved,
+                    portfolioEmpty: portfolioEmpty
+                });
+            }
+
+            displayResults(yearlyData, fiYear, portfolio, portfolioEmpty, annualContributions, lifeExpectancy, currentAge);
+        }
+
+        function displayResults(yearlyData, fiYear, finalPortfolio, portfolioEmpty, annualContributions, lifeExpectancy, currentAge) {
+            document.getElementById('resultsSection').classList.remove('hidden');
+
+            // Summary Cards
+            var summaryHTML = '';
+            var fiAge = fiYear || 'N/A';
+            var yearsToFI = fiYear ? fiYear - currentAge : 'N/A';
+            var finalValue = '$' + Math.round(finalPortfolio).toLocaleString();
+
+            summaryHTML += '<div class="summary-card">';
+            summaryHTML += '<div class="card-title">Financial Independence Age</div>';
+            summaryHTML += '<div class="card-value">' + fiAge + '</div>';
+            summaryHTML += '<div class="card-subtitle">Years from now: ' + yearsToFI + '</div>';
+            if (fiYear) {
+                summaryHTML += '<div class="fi-indicator">FI achieved at age ' + fiYear + '</div>';
+            } else {
+                summaryHTML += '<div class="warning-indicator">FI not achieved</div>';
+            }
+            summaryHTML += '</div>';
+
+            summaryHTML += '<div class="summary-card">';
+            summaryHTML += '<div class="card-title">Final Portfolio Value</div>';
+            summaryHTML += '<div class="card-value">' + finalValue + '</div>';
+            summaryHTML += '<div class="card-subtitle">At age ' + lifeExpectancy + '</div>';
+            if (portfolioEmpty) {
+                summaryHTML += '<div class="warning-indicator">Portfolio depleted</div>';
+            } else {
+                summaryHTML += '<div class="fi-indicator">Portfolio sustained</div>';
+            }
+            summaryHTML += '</div>';
+
+            summaryHTML += '<div class="summary-card">';
+            summaryHTML += '<div class="card-title">Monthly Savings Needed</div>';
+            summaryHTML += '<div class="card-value">$' + Math.round(annualContributions / 12).toLocaleString() + '</div>';
+            summaryHTML += '<div class="card-subtitle">Current annual: $' + annualContributions.toLocaleString() + '</div>';
+            summaryHTML += '</div>';
+
+            document.getElementById('summaryCards').innerHTML = summaryHTML;
+
+            // Chart
+            var ctx = document.getElementById('portfolioChart').getContext('2d');
+            if (chart) {
+                chart.destroy();
+            }
+
+            var chartData = [];
+            for (var i = 0; i < yearlyData.length; i++) {
+                chartData.push({
+                    x: yearlyData[i].age,
+                    y: yearlyData[i].portfolio
+                });
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: chartData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: 'Age'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Portfolio Value ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Table
+            var tableHTML = '<thead><tr>';
+            tableHTML += '<th>Age</th>';
+            tableHTML += '<th>Portfolio Value</th>';
+            tableHTML += '<th>Annual Spending</th>';
+            tableHTML += '<th>Withdrawal Capacity</th>';
+            tableHTML += '<th>Contributions</th>';
+            tableHTML += '<th>Status</th>';
+            tableHTML += '</tr></thead><tbody>';
+
+            var maxRows = Math.min(yearlyData.length, 50);
+            for (var i = 0; i < maxRows; i++) {
+                var data = yearlyData[i];
+                var status = data.fiAchieved ? 'FI Achieved' : (data.portfolioEmpty ? 'Portfolio Empty' : 'Building');
+
+                tableHTML += '<tr>';
+                tableHTML += '<td style="font-weight: 600;">' + data.age + '</td>';
+                tableHTML += '<td>$' + Math.round(data.portfolio).toLocaleString() + '</td>';
+                tableHTML += '<td>$' + Math.round(data.spending).toLocaleString() + '</td>';
+                tableHTML += '<td>$' + Math.round(data.withdrawalCapacity).toLocaleString() + '</td>';
+                tableHTML += '<td>$' + Math.round(data.contributions).toLocaleString() + '</td>';
+                tableHTML += '<td>' + status + '</td>';
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody>';
+
+            document.getElementById('detailTable').innerHTML = tableHTML;
+        }
+    </script>
+</body>
+</html>
